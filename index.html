@@ -1,1 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Walker-1</title>
+	
+	<link rel="stylesheet" href="styles/index.css">
 
+	<script src="src/index.js"></script>
+</head>
+<body>
+	<canvas id="mainCanvas" width="640" height="480">
+		Get a real browser!
+	</canvas>
+	<canvas id="subCanvas" width="640" height="480">
+		Get a real browser!
+	</canvas>
+	<section id="controls">
+		<button id="play">Play</button>
+		<button id="pause">Pause</button>
+		
+		<p id="divertLabel">Divergence: 50</p>
+		<input type="range" min="10" max="350" value="50" class="slider" id="divertSlider">
+	</section>
+</body>
+</html>
