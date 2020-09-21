@@ -147,7 +147,7 @@
             {
                 this.isDead = true;
 
-                phylloList.push(new phyllo(this.x, this.y, 5));
+                phylloList.push(new phyllo(this.x, this.y, lib.getByte(), lib.getByte(), lib.getByte(), 5));
             }
         }
 
@@ -166,7 +166,7 @@
     };
     
     class phyllo {
-        constructor(x, y, c = 5, deltaC = 0, radius = 2)
+        constructor(x, y, r, g, b, c = 5, deltaC = 0, radius = 2)
         {
             this.x = x;
             this.y = y;
@@ -176,6 +176,7 @@
             this.n = 0;
             this.timer = 0;
             this.isDead = false;
+            this.startingColor = {r, g, b};
         }
 
         draw(ctx, ctxSub)
@@ -187,12 +188,16 @@
             let x = r * Math.cos(a) + this.x;
             let y = r * Math.sin(a) + this.y;
 
+            let color = `rgb(${(this.n + this.startingColor.r) / 2 % 200 + 55}, 
+                            ${(r + this.startingColor.g) / 2 % 200 + 55}, 
+                            ${(a + this.startingColor.b) / 2 % 200 + 55})`;
+
             if(this.timer >= 2)
             {
-                lib.drawCircle(ctx,x,y,3,`rgb(${255 - this.n % 200}, ${r % 200 + 55}, ${a % 200 + 55})`);
+                lib.drawCircle(ctx, x, y, 3, color);
             }
 
-            lib.drawCircle(ctxSub,x,y,3,`rgb(${255 - this.n % 200}, ${r % 200 + 55}, ${a % 200 + 55})`);
+            lib.drawCircle(ctxSub, x, y, 3, color);
 
             this.c += this.deltaC;
             this.n++;

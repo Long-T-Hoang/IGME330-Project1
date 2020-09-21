@@ -3,12 +3,13 @@
     let lib =
     {
         getRandomColor(){
-            function getByte(){
-                return 55 + Math.round(Math.random() * 200);
-            }
-            return "rgb(" + getByte() + "," + getByte() + "," + getByte() + ")";
+            return "rgb(" + lib.getByte() + "," + lib.getByte() + "," + lib.getByte() + ")";
         },
-        
+
+        getByte(){
+            return 55 + Math.round(Math.random() * 200);
+        },
+
         cls(ctx, ctxSub, canvasWidth, canvasHeight){
             // Fill screen with background color
             ctx.fillStyle = "rgba(0, 128, 0, 0.4)";
