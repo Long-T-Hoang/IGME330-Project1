@@ -8,14 +8,14 @@
     let walkerList = [];
     let phylloList = [];
     let fps = 12;
-    let updatePerSec = 10;
-    let adjacentLimit = 3;
-    let spawnTime = 2;
-    let spawnLimit = 100;
+    let adjacentLimit = 3, adjacentLimitSlider;
+    let spawnTime = 2, spawnTimeSlider;
+    let spawnLimit = 100, spawnLimitSlider;
     let playing = true;
     let playButton, pauseButton;
-    let divergenceSlider;
-    let divergence;
+    let divergence = 50, divergenceSlider;
+    let phylloLifeTime = 15, phylloLifeTimeSlider;
+    let spawnWalkerButton;
 
     class walker {
         constructor(x, y, width, color, timer = 0)
@@ -27,20 +27,53 @@
             this.timer = timer;
             this.adjacents = 0;
             this.isDead = false;
+
+            // Previous positions
+            this.previousPosList = [];
+            this.listMax = 5;
         }
 
         move(){
             // Increment timer
-            this.timer += 1/updatePerSec;
+            this.timer += 1/fps;
 
-            if(flipWeightedCoin()){
-                // Move horizontally
-                this.x += flipWeightedCoin() ? -this.width : this.width;
-            }else{
-                // Move vertically
-                this.y += flipWeightedCoin() ? -this.width : this.width;
-            }
+            // Remember previous position
+            this.savePosition();
 
+            let altX;
+            let altY;
+            let isOldPos = false;
+
+            do
+            {
+                altX = this.x;
+                altY = this.y;
+
+                if(lib.flipWeightedCoin()){
+                    // Move horizontally
+                    this.x += lib.flipWeightedCoin() ? -this.width : this.width;
+                }else{
+                    // Move vertically
+                    this.y += lib.flipWeightedCoin() ? -this.width : this.width;
+                }
+
+                // Prevent walkers from going to the last 5 previous positions
+                for(let i = 0; i < this.previousPosList.length; i++)
+                {
+                    if(this.x == this.previousPosList[i][0] && this.y == this.previousPosList[i][1])
+                    {
+                        isOldPos = true;
+                        this.x = altX;
+                        this.y = altY;
+                    }
+                    else
+                    {
+                        isOldPos = false;
+                    }
+                }
+            } 
+            while(isOldPos)
+        
             this.spawn();
 
             // Screen wrap
@@ -58,7 +91,7 @@
             // Spawn a new walker after period of time
             if(this.timer >= spawnTime && walkerList.length < spawnLimit)
             {
-                let random = getRandomInt(0, 3);
+                let random = lib.getRandomInt(0, 3);
                 let x, y;
 
                 // Spawning adjacent to current walker
@@ -82,7 +115,7 @@
                         break;
                 }
 
-                walkerList.push(new walker(x, y, 10, getRandomColor()));
+                walkerList.push(new walker(x, y, 10, lib.getRandomColor()));
                 this.timer = 0;
             }
         }
@@ -117,6 +150,19 @@
                 phylloList.push(new phyllo(this.x, this.y, 5));
             }
         }
+
+        savePosition()
+        {
+            if(this.previousPosList.length < this.listMax)
+            {
+                this.previousPosList.push([this.x, this.y]);
+            }
+            else
+            {
+                this.previousPosList.shift();
+                this.previousPosList.push([this.x, this.y]);
+            }
+        }
     };
     
     class phyllo {
@@ -132,21 +178,26 @@
             this.isDead = false;
         }
 
-        draw(ctx)
+        draw(ctx, ctxSub)
         {
             this.timer += 1/fps;
 
-            let a = this.n * dtr(divergence);
+            let a = this.n * lib.dtr(divergence);
             let r = this.c * Math.sqrt(this.n);
             let x = r * Math.cos(a) + this.x;
             let y = r * Math.sin(a) + this.y;
 
-            drawCircle(ctx,x,y,3,`rgb(256, 256, 0)`);
+            if(this.timer >= 2)
+            {
+                lib.drawCircle(ctx,x,y,3,`rgb(${255 - this.n % 200}, ${r % 200 + 55}, ${a % 200 + 55})`);
+            }
+
+            lib.drawCircle(ctxSub,x,y,3,`rgb(${255 - this.n % 200}, ${r % 200 + 55}, ${a % 200 + 55})`);
 
             this.c += this.deltaC;
             this.n++;
 
-            if(this.timer >= 2)
+            if(this.timer >= phylloLifeTime)
             {
                 this.isDead = true;
             }
@@ -157,17 +208,55 @@
     window.onload = function(){
         console.log("page loaded!");
         // #2 Now that the page has loaded, start drawing!
-        divergenceSlider = document.querySelector("#divertSlider");
         playButton = document.querySelector("#play");
         pauseButton = document.querySelector("#pause");
 
+        phylloLifeTimeSlider = document.querySelector("#phylloLifeTimeSlider");
+        spawnTimeSlider = document.querySelector("#spawnTimeSlider");
+        divergenceSlider = document.querySelector("#divertSlider");
+        adjacentLimitSlider = document.querySelector("#adjacentLimitSlider");
+        spawnWalkerButton = document.querySelector("#spawnWalkerButton");
+        spawnLimitSlider = document.querySelector("#spawnLimitSlider");
+
+        // Buttons
         playButton.addEventListener("click", () => playing = true);
         pauseButton.addEventListener("click", () => playing = false);
+        spawnWalkerButton.addEventListener("click", () => walkerList.push(new walker(canvasWidth / 2, canvasHeight / 2, 10, "black")))
+
+        // Sliders
         divergence = divergenceSlider.value;
-        divergenceSlider.addEventListener("change", () => {
+        divergenceSlider.addEventListener("input", () => {
             divergence = divergenceSlider.value;
             let divergenceLabel = document.querySelector("#divertLabel");
             divergenceLabel.innerHTML = `Divergence: ${divergence}`;
+        })
+
+        adjacentLimit = adjacentLimitSlider.value;
+        adjacentLimitSlider.addEventListener("input", () => {
+            adjacentLimit = adjacentLimitSlider.value;
+            let adjacentLimitLabel = document.querySelector("#adjacentLimitLabel");
+            adjacentLimitLabel.innerHTML = `Maximum number of adjacent walkers: ${adjacentLimit}`;
+        })
+
+        spawnTime = spawnTimeSlider.value;
+        spawnTimeSlider.addEventListener("input", () => {
+            spawnTime = spawnTimeSlider.value;
+            let spawnTimeLabel = document.querySelector("#spawnTimeLabel");
+            spawnTimeLabel.innerHTML = `Time between each spawns by each walker: ${spawnTime}`;
+        })
+
+        phylloLifeTime = phylloLifeTimeSlider.value;
+        phylloLifeTimeSlider.addEventListener("input", () => {
+            phylloLifeTime = phylloLifeTimeSlider.value;
+            let phylloLifeTimeLabel = document.querySelector("#phylloLifeTimeLabel");
+            phylloLifeTimeLabel.innerHTML = `Life time of each phyllotaxis (in seconds): ${phylloLifeTime}`;
+        })
+
+        spawnLimit = spawnLimitSlider.value;
+        spawnLimitSlider.addEventListener("input", () => {
+            spawnLimit = spawnLimitSlider.value;
+            let spawnLimitLabel = document.querySelector("#spawnLimitLabel");
+            spawnLimitLabel.innerHTML = `Maximum number of walkers: ${spawnLimit}`;
         })
 
         // A - canvas variable points at <canvas> tag
@@ -198,13 +287,12 @@
     function drawLoop(){
         if(playing)
         {
-            cls(ctx);
+            lib.cls(ctx, ctxSub, canvasWidth, canvasHeight);
 
             // Phyllotaxis loop
             for(let i = 0; i < phylloList.length; i++)
             {
-                phylloList[i].draw(ctx);
-                phylloList[i].draw(ctxSub);
+                phylloList[i].draw(ctx, ctxSub);
 
                 if(phylloList[i].isDead)
                 {
@@ -249,43 +337,4 @@
         }
     }
 
-    // UTILS
-    function getRandomColor(){
-        function getByte(){
-            return 55 + Math.round(Math.random() * 200);
-        }
-        return "rgb(" + getByte() + "," + getByte() + "," + getByte() + ")";
-    }
-    
-    function cls(ctx){
-        // Fill screen with background color
-        ctx.fillStyle = "rgba(0, 128, 0, 0.4)";
-        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-        ctxSub.fillStyle = "rgba(0, 0, 0, 0.1";
-        ctxSub.fillRect(0, 0, canvasWidth, canvasHeight);
-    }
-    
-    function flipWeightedCoin(weight = 0.5){
-        return Math.random() < weight;
-    }
-
-    function getRandomInt(min, max)
-    {
-        return Math.floor(Math.random() * (max - min) + min);
-    }
-
-    function drawCircle(ctx,x,y,radius,color){
-        ctx.save();
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(x,y,radius,0,Math.PI * 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-    }
-
-    function dtr(degrees){
-    return degrees * (Math.PI/180);
-    }
 })()
