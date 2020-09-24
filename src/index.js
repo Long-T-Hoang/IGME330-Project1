@@ -165,6 +165,18 @@
                 this.previousPosList.push([this.x, this.y]);
             }
         }
+
+        draw(ctx)
+        {
+            ctx.fillStyle = "black";
+            ctx.fillRect(this.x - this.width / 2 - this.outlineWidth,
+                        this.y - this.width / 2 - this.outlineWidth,
+                        this.width / 2 + this.outlineWidth * 2,
+                        this.width / 2 + this.outlineWidth * 2);
+            
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x - this.width / 2,this.y - this.width / 2,this.width / 2,this.width / 2);
+        }
     };
     
     class phyllo {
@@ -194,6 +206,8 @@
                             ${(r + this.startingColor.g) / 2 % 200 + 55}, 
                             ${(a + this.startingColor.b) / 2 % 200 + 55})`;
 
+
+            // Stop drawing on main canvas 2 seconds
             if(this.timer >= 2)
             {
                 lib.drawCircle(ctx, x, y, 3, color);
@@ -326,15 +340,7 @@
             // Walker loop
             for(let i = 0; i < walkerList.length; i++)
             {
-                ctx.fillStyle = "black";
-                ctx.fillRect(walkerList[i].x-walkerList[i].width/2 - walkerList[i].outlineWidth,
-                            walkerList[i].y-walkerList[i].width/2 - walkerList[i].outlineWidth,
-                            walkerList[i].width/2 + walkerList[i].outlineWidth * 2,
-                            walkerList[i].width/2 + walkerList[i].outlineWidth * 2);
-                
-                ctx.fillStyle = walkerList[i].color;
-                ctx.fillRect(walkerList[i].x-walkerList[i].width/2,walkerList[i].y-walkerList[i].width/2,walkerList[i].width/2,walkerList[i].width/2);
-
+                walkerList[i].draw(ctx);
                 walkerList[i].move();
 
                 // Check adjacency
@@ -359,8 +365,8 @@
             for(let i = 0; i < walkerList.length; i++)
             {
                 if(walkerList[i].isDead)
-                {
-                        walkerList.splice(i, 1);
+                { 
+                    walkerList.splice(k, 1);
                 }
             }
         }
