@@ -13,9 +13,10 @@
     let spawnLimit = 100, spawnLimitSlider;
     let playing = true;
     let playButton, pauseButton;
-    let divergence = 50, divergenceSlider;
     let phylloLifeTime = 15, phylloLifeTimeSlider;
     let spawnWalkerButton;
+    let divergenceMin, divergenceMax, divergenceMinSlider, divergenceMaxSlider;
+    let deltaC = 0, deltaCInput;
 
     class walker {
         constructor(x, y, width, color, timer = 0)
@@ -27,6 +28,7 @@
             this.timer = timer;
             this.adjacents = 0;
             this.isDead = false;
+            this.outlineWidth = 1;
 
             // Previous positions
             this.previousPosList = [];
@@ -147,7 +149,7 @@
             {
                 this.isDead = true;
 
-                phylloList.push(new phyllo(this.x, this.y, lib.getByte(), lib.getByte(), lib.getByte(), 5));
+                phylloList.push(new phyllo(this.x, this.y, lib.getByte(), lib.getByte(), lib.getByte(), lib.getRandomFloat(120, 360), 5));
             }
         }
 
@@ -166,24 +168,24 @@
     };
     
     class phyllo {
-        constructor(x, y, r, g, b, c = 5, deltaC = 0, radius = 2)
+        constructor(x, y, r, g, b, divergence, c = 5, radius = 2)
         {
             this.x = x;
             this.y = y;
             this.c = c;
             this.radius;
-            this.deltaC = deltaC;
             this.n = 0;
             this.timer = 0;
             this.isDead = false;
             this.startingColor = {r, g, b};
+            this.divergence = divergence;
         }
 
         draw(ctx, ctxSub)
         {
             this.timer += 1/fps;
 
-            let a = this.n * lib.dtr(divergence);
+            let a = this.n * lib.dtr(this.divergence);
             let r = this.c * Math.sqrt(this.n);
             let x = r * Math.cos(a) + this.x;
             let y = r * Math.sin(a) + this.y;
@@ -199,7 +201,7 @@
 
             lib.drawCircle(ctxSub, x, y, 3, color);
 
-            this.c += this.deltaC;
+            this.c += deltaC;
             this.n++;
 
             if(this.timer >= phylloLifeTime)
@@ -218,10 +220,13 @@
 
         phylloLifeTimeSlider = document.querySelector("#phylloLifeTimeSlider");
         spawnTimeSlider = document.querySelector("#spawnTimeSlider");
-        divergenceSlider = document.querySelector("#divertSlider");
+        divergenceMinSlider = document.querySelector("#divertMinSlider");
+        divergenceMaxSlider = document.querySelector("#divertMaxSlider");
         adjacentLimitSlider = document.querySelector("#adjacentLimitSlider");
         spawnWalkerButton = document.querySelector("#spawnWalkerButton");
         spawnLimitSlider = document.querySelector("#spawnLimitSlider");
+        deltaCInput = document.querySelector("#deltaCInput");
+        deltaCInput.value = deltaC;
 
         // Buttons
         playButton.addEventListener("click", () => playing = true);
@@ -229,40 +234,53 @@
         spawnWalkerButton.addEventListener("click", () => walkerList.push(new walker(canvasWidth / 2, canvasHeight / 2, 10, "black")))
 
         // Sliders
-        divergence = divergenceSlider.value;
-        divergenceSlider.addEventListener("input", () => {
-            divergence = divergenceSlider.value;
-            let divergenceLabel = document.querySelector("#divertLabel");
-            divergenceLabel.innerHTML = `Divergence: ${divergence}`;
-        })
+        divergenceMin = parseFloat(divergenceMinSlider.value);
+        divergenceMax = parseFloat(divergenceMaxSlider.value);
+        divergenceMinSlider.addEventListener("input", () => {
+            divergenceMin = parseFloat(divergenceMinSlider.value);
+            let divergenceMinLabel = document.querySelector("#divertMinLabel");
+            divergenceMinLabel.innerHTML = `Minimum Divergence: <span class="value">${divergenceMin}</span>`;
+        });
+        divergenceMaxSlider.addEventListener("input", () => {
+            divergenceMax = parseFloat(divergenceMaxSlider.value);
+            let divergenceMaxLabel = document.querySelector("#divertMaxLabel");
+            divergenceMaxLabel.innerHTML = `Maximum Divergence: <span class="value">${divergenceMax}</span>`;
+        });
 
         adjacentLimit = adjacentLimitSlider.value;
         adjacentLimitSlider.addEventListener("input", () => {
             adjacentLimit = adjacentLimitSlider.value;
             let adjacentLimitLabel = document.querySelector("#adjacentLimitLabel");
-            adjacentLimitLabel.innerHTML = `Maximum number of adjacent walkers: ${adjacentLimit}`;
-        })
+            adjacentLimitLabel.innerHTML = `Maximum number of adjacent walkers: <span class="value">${adjacentLimit}</span>`;
+        });
 
         spawnTime = spawnTimeSlider.value;
         spawnTimeSlider.addEventListener("input", () => {
             spawnTime = spawnTimeSlider.value;
             let spawnTimeLabel = document.querySelector("#spawnTimeLabel");
-            spawnTimeLabel.innerHTML = `Time between each spawns by each walker: ${spawnTime}`;
-        })
+            spawnTimeLabel.innerHTML = `Time between each spawns by each walker: <span class="value">${spawnTime}</span>`;
+        });
 
         phylloLifeTime = phylloLifeTimeSlider.value;
         phylloLifeTimeSlider.addEventListener("input", () => {
             phylloLifeTime = phylloLifeTimeSlider.value;
             let phylloLifeTimeLabel = document.querySelector("#phylloLifeTimeLabel");
-            phylloLifeTimeLabel.innerHTML = `Life time of each phyllotaxis (in seconds): ${phylloLifeTime}`;
-        })
+            phylloLifeTimeLabel.innerHTML = `Life time of each phyllotaxis (in seconds): <span class="value">${phylloLifeTime}</span>`;
+        });
 
         spawnLimit = spawnLimitSlider.value;
         spawnLimitSlider.addEventListener("input", () => {
             spawnLimit = spawnLimitSlider.value;
             let spawnLimitLabel = document.querySelector("#spawnLimitLabel");
-            spawnLimitLabel.innerHTML = `Maximum number of walkers: ${spawnLimit}`;
-        })
+            spawnLimitLabel.innerHTML = `Maximum number of walkers: <span class="value">${spawnLimit}</span>`;
+        });
+
+        deltaCInput.addEventListener("input", () => {
+            if(typeof parseFloat(deltaCInput.value) == 'number')
+            {
+                deltaC = parseFloat(deltaCInput.value);
+            }
+        });
 
         // A - canvas variable points at <canvas> tag
         let canvas = document.querySelector('#mainCanvas');
@@ -308,6 +326,12 @@
             // Walker loop
             for(let i = 0; i < walkerList.length; i++)
             {
+                ctx.fillStyle = "black";
+                ctx.fillRect(walkerList[i].x-walkerList[i].width/2 - walkerList[i].outlineWidth,
+                            walkerList[i].y-walkerList[i].width/2 - walkerList[i].outlineWidth,
+                            walkerList[i].width/2 + walkerList[i].outlineWidth * 2,
+                            walkerList[i].width/2 + walkerList[i].outlineWidth * 2);
+                
                 ctx.fillStyle = walkerList[i].color;
                 ctx.fillRect(walkerList[i].x-walkerList[i].width/2,walkerList[i].y-walkerList[i].width/2,walkerList[i].width/2,walkerList[i].width/2);
 
@@ -339,6 +363,15 @@
                         walkerList.splice(i, 1);
                 }
             }
+        }
+
+        // Slider functions
+        if(divergenceMax < divergenceMin)
+        {
+            divergenceMax = divergenceMin;
+            divergenceMaxSlider.value = divergenceMax;
+            let divergenceMaxLabel = document.querySelector("#divertMaxLabel");
+            divergenceMaxLabel.innerHTML = `Maximum Divergence: ${divergenceMax}`;
         }
     }
 

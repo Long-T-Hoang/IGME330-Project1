@@ -4,39 +4,71 @@
 	<meta charset="utf-8" />
 	<title>Walker-1</title>
 	
+	<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="styles/index.css">
 
 	<script src="src/lib.js"></script>
 	<script src="src/index.js"></script>
 </head>
 <body>
-	<canvas id="mainCanvas" width="640" height="480">
-		Get a real browser!
-	</canvas>
-	<canvas id="subCanvas" width="640" height="480">
-		Get a real browser!
-	</canvas>
+
+	<h1>Random Walker and Phyllotaxis</h1>
+
+	<div id="canvas-container">
+		<canvas id="mainCanvas" width="640" height="480">
+			Get a real browser!
+		</canvas>
+		<canvas id="subCanvas" width="640" height="480">
+			Get a real browser!
+		</canvas>
+	</div>
+
 	<section id="controls">
-	
-		<button id="play">Play</button>
-		<button id="pause">Pause</button>
-		<button id="spawnWalkerButton">Spawn a walker</button>
 		
-		<p id="divertLabel">Divergence: 50</p>
-		<input type="range" min="10" max="350" value="50" class="slider" id="divertSlider">
-
-		<p id="adjacentLimitLabel">Maximum number of adjacent walkers: 3</p>
-		<input type="range" min="1" max="4" value="3" class="slider" id="adjacentLimitSlider">
-
-		<p id="spawnTimeLabel">Time between each spawns by each walker: 2</p>
-		<input type="range" min="1" max="10" value="2" class="slider" id="spawnTimeSlider">
-
-		<p id="phylloLifeTimeLabel">Life time of each phyllotaxis (in seconds): 15</p>
-		<input type="range" min="1" max="30" value="15" class="slider" id="phylloLifeTimeSlider">
+		<div id="buttons">
+			<button id="play">Play</button>
+			<button id="pause">Pause</button>
+			<button id="spawnWalkerButton">Spawn a walker</button>
+		</div>
 		
-		<p id="spawnLimitLabel">Maximum number of walkers: 100</p>
-		<input type="range" min="50" max="500" value="100" class="slider" id="spawnLimitSlider">
-		
+		<div id="grid-container">
+
+			<div class="setting">
+				<p id="divertMinLabel">Minimum Divergence: <span class="value">50</span></p>
+				<input type="range" min="0" max="359" value="50" class="slider" id="divertMinSlider">
+			</div>
+
+			<div class="setting">
+				<p id="adjacentLimitLabel">Maximum number of adjacent walkers: <span class="value">3</span></p>
+				<input type="range" min="1" max="4" value="3" class="slider" id="adjacentLimitSlider">
+			</div>
+
+			<div class="setting">
+				<p id="spawnTimeLabel">Time between each spawns by each walker: <span class="value">2</span></p>
+				<input type="range" min="1" max="10" value="2" class="slider" id="spawnTimeSlider">
+			</div>
+
+			<div class="setting">
+				<p id="divertMaxLabel">Maximum Divergence: <span class="value">100</span></p>
+				<input type="range" min="1" max="360" value="100" class="slider" id="divertMaxSlider">
+			</div>
+
+			<div class="setting">
+				<p id="phylloLifeTimeLabel">Life time of each phyllotaxis (in seconds): <span class="value">15</span></p>
+				<input type="range" min="1" max="30" value="15" class="slider" id="phylloLifeTimeSlider">
+			</div>
+
+			<div class="setting">
+				<p id="spawnLimitLabel">Maximum number of walkers: <span class="value">100</span></p>
+				<input type="range" min="50" max="500" value="100" class="slider" id="spawnLimitSlider">
+			</div>
+
+			<div class="setting" id="deltaC">
+				<p>Change of c over time</p>
+				<input type="text" id="deltaCInput">
+			</div>
+		</div>
+
 	</section>
 </body>
 </html>

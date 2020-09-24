@@ -1,11 +1,109 @@
+body{
+    font-family: 'Roboto', sans-serif;
+}
+
+#canvas-container{
+    text-align: center;
+}
+
 canvas{
-    border:1px solid gray;
+    border:5px solid rgb(206, 101, 101);
+}
+
+h1{
+    text-align: center;
+    margin: 0 0 2em;
 }
 
 section{
     display: block;
 }
 
+#buttons
+{
+    width: 25%;
+    margin: 1em auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 button{
+    font-size: 15px;
+    font-weight: bold;
+    color: black; 
+    background-color: white;
+    padding: 5px;
+    border: 2px solid red;
+    width: 100px;
     display: block;
+}
+
+button:hover{
+    background-color: red;
+    color: white;
+}
+
+#grid-container
+{
+    width: 75%;
+    margin: auto;
+    display: grid;
+    grid-template-areas: 
+                "minDiverg maxDiverg maxAdjacent"
+                "spawnTime phylloLife maxWalkerNum"
+                "deltaC deltaC deltaC";
+    grid-template-columns: 33% 33% 33%;
+}
+
+.value
+{
+    color: red;
+    font-weight: bold;
+}
+
+.setting
+{
+    text-align: center;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 50%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+  
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    background: #d85a5a;
+    cursor: pointer;
+}
+  
+.slider::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    background: #d85a5a;
+    cursor: pointer;
+}
+
+#deltaC
+{
+    grid-area: deltaC;
+}
+
+#deltaCInput
+{
+    border: 2px solid #d85a5a;
 }

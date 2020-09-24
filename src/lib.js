@@ -12,7 +12,7 @@
 
         cls(ctx, ctxSub, canvasWidth, canvasHeight){
             // Fill screen with background color
-            ctx.fillStyle = "rgba(0, 128, 0, 0.4)";
+            ctx.fillStyle = "rgba(59, 236, 65, 0.4)";
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     
             ctxSub.fillStyle = "rgba(0, 0, 0, 0.03";
@@ -40,12 +40,17 @@
     
         dtr(degrees){
         return degrees * (Math.PI/180);
+        },
+
+        getRandomFloat(min, max)
+        {
+            return Math.random() * (max - min) + min;
         }
     }
 
     if(window)
     {
-    window["lib"] = lib;
+        window["lib"] = lib;
     }
     else
     {
